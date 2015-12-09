@@ -220,6 +220,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // app shows again. If that doesn't happen for 30s we drop the gesture.
     private static final long PANIC_GESTURE_EXPIRATION = 30000;
 
+    private static final String PRINT_LOGS_PROPERTY = "org.leyfer.thesis.printCoords";
+
     /**
      * Keyguard stuff
      */
@@ -1777,7 +1779,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void enablePointerLocation() {
         if (mPointerLocationView == null) {
             mPointerLocationView = new PointerLocationView(mContext);
-            mPointerLocationView.setPrintCoords(false);
+            boolean shouldPrintCoords = SystemProperties.getBoolean(PRINT_LOGS_PROPERTY, false);
+            mPointerLocationView.setPrintCoords(shouldPrintCoords);
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT);
