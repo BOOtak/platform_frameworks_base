@@ -220,6 +220,10 @@ public class PointerLocationView extends View implements InputDeviceListener,
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (mPrintCoords) {
+            return;
+        }
+
         final int w = getWidth();
         final int itemW = w/7;
         final int base = -mTextMetrics.ascent+1;
