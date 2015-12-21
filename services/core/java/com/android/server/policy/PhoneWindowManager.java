@@ -120,6 +120,7 @@ import com.android.internal.widget.PointerLocationView;
 import com.android.server.LocalServices;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate;
 import com.android.server.policy.keyguard.KeyguardServiceDelegate.DrawnListener;
+import com.android.server.policy.touchlogger.TouchLogger;
 
 import java.io.File;
 import java.io.FileReader;
@@ -417,6 +418,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     IApplicationToken mFocusedApp;
 
     PointerLocationView mPointerLocationView;
+    TouchLogger mTouchLogger;
 
     // The current size of the screen; really; extends into the overscan area of
     // the screen and doesn't account for any system elements like the status bar.
@@ -1779,8 +1781,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private void enablePointerLocation() {
         if (mPointerLocationView == null) {
             mPointerLocationView = new PointerLocationView(mContext);
-            boolean shouldPrintCoords = SystemProperties.getBoolean(PRINT_LOGS_PROPERTY, false);
-            mPointerLocationView.setPrintCoords(shouldPrintCoords);
+            mPointerLocationView.setPrintCoords(false);
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT);
@@ -1802,6 +1803,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             wm.addView(mPointerLocationView, lp);
             mWindowManagerFuncs.registerPointerEventListener(mPointerLocationView);
         }
+        if (mTouchLogger == null) {
+            mTouchLogger = new TouchLogger();
+            mWindowManagerFuncs.registerPointerEventListener(mTouchLogger);
+        }
     }
 
     private void disablePointerLocation() {
@@ -1810,6 +1815,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
             wm.removeView(mPointerLocationView);
             mPointerLocationView = null;
+        }
+        if (mTouchLogger != null) {
+            mWindowManagerFuncs.unregisterPointerEventListener(mTouchLogger);
+            mTouchLogger = null;
         }
     }
 
