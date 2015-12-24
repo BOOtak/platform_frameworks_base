@@ -200,6 +200,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static public final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
     static public final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
     static public final String SYSTEM_DIALOG_REASON_ASSIST = "assist";
+    static private final String FALLBACK_TOUCH_VIEW_PROPERTY = "fallback.touch.view";
 
     /**
      * These are the system UI flags that, when changing, can cause the layout
@@ -1779,7 +1780,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void enablePointerLocation() {
-        if (mPointerLocationView == null) {
+        if ((mPointerLocationView == null) && (SystemProperties.getBoolean(FALLBACK_TOUCH_VIEW_PROPERTY, false))) {
             mPointerLocationView = new PointerLocationView(mContext);
             mPointerLocationView.setPrintCoords(false);
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
