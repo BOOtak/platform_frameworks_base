@@ -1,4 +1,4 @@
-package com.android.server.policy.touchlogger;
+package com.android.server.policy.touchlogger.helper;
 
 import java.util.ArrayList;
 import java.util.List;

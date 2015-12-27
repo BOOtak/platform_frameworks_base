@@ -1,22 +1,23 @@
-package com.android.server.policy.touchlogger;
+package com.android.server.policy.touchlogger.task;
 
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import com.android.server.policy.touchlogger.helper.GestureBuffer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.concurrent.Callable;
 
 public class SaveGesturesTask extends AsyncTask<GestureBuffer, Void, Void> {
 
     private final String LOG_DATA_DIRNAME = "gesture_data";
     private final String TAG = "TouchLogger/saveGesture";
 
-    protected Void doInBackground(GestureBuffer... buffers) {
+    @Override
+    public Void doInBackground(GestureBuffer... buffers) {
         for (GestureBuffer buffer : buffers) {
             long millis = System.currentTimeMillis();
             String filename = String.format("data_%d.log", millis);

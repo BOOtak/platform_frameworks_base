@@ -1,10 +1,17 @@
 package com.android.server.policy.touchlogger;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.provider.Settings;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManagerPolicy;
+import com.android.server.policy.touchlogger.receiver.ConnectivityReceiver;
+import com.android.server.policy.touchlogger.service.UploadReceiver;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +28,7 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
     private JSONObject mGesture;
     private JSONArray mEvents;
     private long mStartGestureTime;
+    private UploadReceiver mUploadReceiver;
 
     private final Map<Integer, String>mPrefixMap = new HashMap<Integer, String>() {{
         put(MotionEvent.ACTION_DOWN, "DOWN");
@@ -40,6 +48,35 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
         mContext = context;
         mGesture = new JSONObject();
         mEvents = new JSONArray();
+
+        setAlarm(context);
+        registerNetworkReceiver(context);
+    }
+
+    private void setAlarm(Context context) {
+        IntentFilter filter = new IntentFilter(UploadReceiver.UPLOAD_GESTURES);
+        mUploadReceiver = new UploadReceiver();
+        context.registerReceiver(mUploadReceiver, filter);
+
+        AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent uploadGesturesIntent = new Intent(UploadReceiver.UPLOAD_GESTURES);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, uploadGesturesIntent, 0);
+
+        // TODO: make more reasonable periods
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                60 * 1000,
+                60 * 1000,
+                pendingIntent);
+
+        Log.d(TAG, "Start alarm clock");
+    }
+
+    private void registerNetworkReceiver(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
+        context.registerReceiver(connectivityReceiver, filter);
     }
 
     @Override

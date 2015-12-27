@@ -1,5 +1,8 @@
 package com.android.server.policy.touchlogger;
 
+import com.android.server.policy.touchlogger.helper.GestureBuffer;
+import com.android.server.policy.touchlogger.task.SaveGesturesTask;
+
 public class TouchSaver {
     private static TouchSaver ourInstance = new TouchSaver();
     private final int maxBufferSize = 2 << 17;
