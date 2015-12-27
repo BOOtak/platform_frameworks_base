@@ -1,26 +1,102 @@
 package com.android.server.policy.touchlogger;
 
+import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManagerPolicy;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
     public static final String TAG = "TouchLogger";
 
     private final FastStringBuilder mText = new FastStringBuilder();
+    private final Context mContext;
+    private JSONObject mGesture;
+    private JSONArray mEvents;
+    private long mStartGestureTime;
+
+    private final Map<Integer, String>mPrefixMap = new HashMap<Integer, String>() {{
+        put(MotionEvent.ACTION_DOWN, "DOWN");
+        put(MotionEvent.ACTION_UP, "UP");
+        put(MotionEvent.ACTION_MOVE, "MOVE");
+        put(MotionEvent.ACTION_CANCEL, "CANCEL");
+        put(MotionEvent.ACTION_OUTSIDE, "OUTSIDE");
+        put(MotionEvent.ACTION_POINTER_DOWN, "POINTER_DOWN");
+        put(MotionEvent.ACTION_POINTER_UP, "POINTER_UP");
+        put(MotionEvent.ACTION_HOVER_MOVE, "HOVER_MOVE");
+        put(MotionEvent.ACTION_HOVER_ENTER, "HOVER_ENTER");
+        put(MotionEvent.ACTION_HOVER_EXIT, "HOVER_EXIT");
+        put(MotionEvent.ACTION_SCROLL, "SCROLL");
+    }};
+
+    public TouchLogger(Context context) {
+        mContext = context;
+        mGesture = new JSONObject();
+        mEvents = new JSONArray();
+    }
 
     @Override
     public void onPointerEvent(MotionEvent event) {
         int pointerCount = event.getPointerCount();
-        int action = event.getAction();
+        int rawAction = event.getAction();
+        int action = rawAction & MotionEvent.ACTION_MASK;
 
-        for (int i = 0; i < pointerCount; i++) {
-            final int id = event.getPointerId(i);
-            final MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
-            event.getPointerCoords(i, coords);
+        try {
+            String prefix = mPrefixMap.get(action);
+            if (prefix == null) {
+                prefix = Integer.toString(rawAction);
+            }
 
-            logCoords(action, i, coords, id, event);
+            JSONObject motionEvent = new JSONObject();
+            motionEvent.put("prefix", prefix);
+            motionEvent.put("timestamp", System.currentTimeMillis());
+            if (action == MotionEvent.ACTION_POINTER_DOWN || action == MotionEvent.ACTION_POINTER_UP) {
+                motionEvent.put("action_pointer_index", (rawAction & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT);
+            }
+
+            JSONArray pointers = new JSONArray();
+            for (int i = 0; i < pointerCount; i++) {
+                final int id = event.getPointerId(i);
+                final MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
+                event.getPointerCoords(i, coords);
+
+                JSONObject pointer = new JSONObject()
+                        .put("index", i)
+                        .put("id", id)
+                        .put("x", coords.x)
+                        .put("y", coords.y)
+                        .put("pressure", coords.pressure);
+                pointers.put(pointer);
+
+//            logCoords(action, i, coords, id, event);
+            }
+
+            motionEvent.put("pointers", pointers);
+            mEvents.put(motionEvent);
+
+            if (action == MotionEvent.ACTION_DOWN) {
+                mStartGestureTime = System.currentTimeMillis();
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                mGesture.put("timestamp", System.currentTimeMillis());
+                mGesture.put("length", System.currentTimeMillis() - mStartGestureTime);
+                mGesture.put("events", mEvents);
+                String logString = mGesture.toString();
+                Log.d(TAG, String.valueOf(logString.length()));
+                TouchSaver.getInstance().saveGesture(logString);
+                mEvents = new JSONArray();
+                mGesture = new JSONObject();
+            }
+//            Log.d(TAG, motionEvent.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, String.format("Unable to add build gesture: %s", e.toString()));
         }
     }
 

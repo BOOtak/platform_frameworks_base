@@ -1805,7 +1805,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mWindowManagerFuncs.registerPointerEventListener(mPointerLocationView);
         }
         if (mTouchLogger == null) {
-            mTouchLogger = new TouchLogger();
+            mTouchLogger = new TouchLogger(mContext);
             mWindowManagerFuncs.registerPointerEventListener(mTouchLogger);
         }
     }
