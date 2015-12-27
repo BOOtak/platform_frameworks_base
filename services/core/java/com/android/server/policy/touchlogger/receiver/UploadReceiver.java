@@ -1,4 +1,4 @@
-package com.android.server.policy.touchlogger.service;
+package com.android.server.policy.touchlogger.receiver;
 
 import android.app.IntentService;
 import android.content.BroadcastReceiver;

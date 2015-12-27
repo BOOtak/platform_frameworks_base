@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.WindowManagerPolicy;
 import com.android.server.policy.touchlogger.receiver.ConnectivityReceiver;
-import com.android.server.policy.touchlogger.service.UploadReceiver;
+import com.android.server.policy.touchlogger.receiver.UploadReceiver;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
