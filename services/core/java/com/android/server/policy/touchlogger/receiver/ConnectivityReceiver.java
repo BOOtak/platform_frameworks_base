@@ -30,8 +30,8 @@ public class ConnectivityReceiver extends BroadcastReceiver {
                         } catch (InterruptedException e) {
                             Log.w(TAG, "Interrupted. Trying to send logs anyway.");
                         }
-                        Intent sendLogsIntent = new Intent(context, UploadReceiver.class);
-                        context.startService(sendLogsIntent);
+                        Intent uploadGesturesIntent = new Intent(UploadReceiver.UPLOAD_GESTURES);
+                        context.sendBroadcast(uploadGesturesIntent);
                     }
                 }
             }
