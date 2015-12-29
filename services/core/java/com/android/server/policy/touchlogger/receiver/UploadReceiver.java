@@ -1,6 +1,5 @@
 package com.android.server.policy.touchlogger.receiver;
 
-import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 import com.android.server.policy.touchlogger.helper.UploadGesturesScheduler;
+import com.android.server.policy.touchlogger.task.UploadGesturesTask;
 
 public class UploadReceiver extends BroadcastReceiver {
 
@@ -25,8 +25,13 @@ public class UploadReceiver extends BroadcastReceiver {
         if (activeNetwork != null && activeNetwork.isConnected()) {
             if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                 Log.d(TAG, "Send data");
+                uploadGestures();
                 UploadGesturesScheduler.getInstance(context).setNeedUploadGestures(false);
             }
         }
+    }
+
+    private void  uploadGestures() {
+        new UploadGesturesTask().execute();
     }
 }

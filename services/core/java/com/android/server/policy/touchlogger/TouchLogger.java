@@ -22,6 +22,8 @@ import java.util.Map;
 
 public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
     public static final String TAG = "TouchLogger";
+    public static final String LOG_DATA_DIRNAME = "gesture_data";
+
 
     private final FastStringBuilder mText = new FastStringBuilder();
     private final Context mContext;
