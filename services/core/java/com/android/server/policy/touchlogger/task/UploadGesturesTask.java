@@ -60,12 +60,15 @@ public class UploadGesturesTask extends AsyncTask<Void, Void, Void> {
             url = new URL(link);
             connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "application/bin");
+            connection.setDoInput(true);
+            connection.setRequestProperty("Content-Type", "application/octet-stream");
             connection.setRequestMethod("POST");
 
             outStream = new BufferedOutputStream(connection.getOutputStream());
             copyStream(inStream, outStream);
             outStream.close();
+            String response = readStream(connection.getInputStream());
+            Log.d(TAG, String.format("Received response: %s", response));
             connection.disconnect();
             Log.d(TAG, "Gesture data sent successfully");
         }
@@ -87,5 +90,15 @@ public class UploadGesturesTask extends AsyncTask<Void, Void, Void> {
             output.write(buffer, 0, bytesRead);
         }
         Log.d(TAG, String.format("Read %d total", totalBytesRead));
+    }
+
+    private String readStream(InputStream stream) throws IOException {
+        BufferedReader r = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder total = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null) {
+            total.append(line);
+        }
+        return total.toString();
     }
 }
