@@ -129,7 +129,7 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
                 mGesture.put("events", mEvents);
                 String logString = mGesture.toString();
                 Log.d(TAG, String.valueOf(logString.length()));
-                TouchSaver.getInstance().saveGesture(logString);
+                TouchSaver.getInstance(mContext).saveGesture(logString);
                 mEvents = new JSONArray();
                 mGesture = new JSONObject();
             }

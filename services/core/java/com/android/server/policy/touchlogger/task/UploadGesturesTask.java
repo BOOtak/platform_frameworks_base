@@ -2,6 +2,7 @@ package com.android.server.policy.touchlogger.task;
 
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.SystemProperties;
 import android.util.Log;
 import com.android.server.policy.touchlogger.TouchLogger;
 
@@ -12,7 +13,8 @@ import java.net.URL;
 public class UploadGesturesTask extends AsyncTask<Void, Void, Void> {
 
     private final String TAG = "TouchLogger.uploadTask";
-    private final String URL = "http://10.13.37.217:9002";
+    private final String DEFAULT_URL = "http://192.168.0.103:9002";
+    private final String TOUCHLOGGER_URL_KEY = "org.leyfer.thesis.url";
 
     @Override
     protected Void doInBackground(Void... params) {
@@ -28,10 +30,11 @@ public class UploadGesturesTask extends AsyncTask<Void, Void, Void> {
                 }
             });
 
+            String url = SystemProperties.get(TOUCHLOGGER_URL_KEY, DEFAULT_URL);
             for (File logFile: fileList) {
                 if (logFile.exists()) {
                     try {
-                        uploadFile(URL, logFile);
+                        uploadFile(url, logFile);
                         if (logFile.delete()) {
                             Log.d(TAG, String.format("File %s deleted sucessfully", logFile.getName()));
                         } else {
