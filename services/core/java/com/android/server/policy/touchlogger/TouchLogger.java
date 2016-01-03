@@ -25,7 +25,6 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
     public static final String LOG_DATA_DIRNAME = "gesture_data";
 
 
-    private final FastStringBuilder mText = new FastStringBuilder();
     private final Context mContext;
     private JSONObject mGesture;
     private JSONArray mEvents;
@@ -114,8 +113,6 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
                         .put("y", coords.y)
                         .put("pressure", coords.pressure);
                 pointers.put(pointer);
-
-//            logCoords(action, i, coords, id, event);
             }
 
             motionEvent.put("pointers", pointers);
@@ -133,92 +130,8 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
                 mEvents = new JSONArray();
                 mGesture = new JSONObject();
             }
-//            Log.d(TAG, motionEvent.toString());
         } catch (JSONException e) {
             Log.e(TAG, String.format("Unable to add build gesture: %s", e.toString()));
         }
-    }
-
-    private void logCoords(int action, int index, MotionEvent.PointerCoords coords, int id, MotionEvent event) {
-        final int toolType = event.getToolType(index);
-        final int buttonState = event.getButtonState();
-        final String prefix;
-        switch (action & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-                prefix = "DOWN";
-                break;
-            case MotionEvent.ACTION_UP:
-                prefix = "UP";
-                break;
-            case MotionEvent.ACTION_MOVE:
-                prefix = "MOVE";
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                prefix = "CANCEL";
-                break;
-            case MotionEvent.ACTION_OUTSIDE:
-                prefix = "OUTSIDE";
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                if (index == ((action & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)) {
-                    prefix = "DOWN";
-                } else {
-                    prefix = "MOVE";
-                }
-                break;
-            case MotionEvent.ACTION_POINTER_UP:
-                if (index == ((action & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)) {
-                    prefix = "UP";
-                } else {
-                    prefix = "MOVE";
-                }
-                break;
-            case MotionEvent.ACTION_HOVER_MOVE:
-                prefix = "HOVER MOVE";
-                break;
-            case MotionEvent.ACTION_HOVER_ENTER:
-                prefix = "HOVER ENTER";
-                break;
-            case MotionEvent.ACTION_HOVER_EXIT:
-                prefix = "HOVER EXIT";
-                break;
-            case MotionEvent.ACTION_SCROLL:
-                prefix = "SCROLL";
-                break;
-            default:
-                prefix = Integer.toString(action);
-                break;
-        }
-
-        Log.i(TAG, mText.clear()
-                .append(" id ").append(id + 1)
-                .append(": ")
-                .append(prefix)
-                .append(" (").append(coords.x, 3).append(", ").append(coords.y, 3)
-                .append(") Pressure=").append(coords.pressure, 3)
-                .append(" Size=").append(coords.size, 3)
-                .append(" TouchMajor=").append(coords.touchMajor, 3)
-                .append(" TouchMinor=").append(coords.touchMinor, 3)
-                .append(" ToolMajor=").append(coords.toolMajor, 3)
-                .append(" ToolMinor=").append(coords.toolMinor, 3)
-                .append(" Orientation=").append((float)(coords.orientation * 180 / Math.PI), 1)
-                .append("deg")
-                .append(" Tilt=").append((float)(
-                        coords.getAxisValue(MotionEvent.AXIS_TILT) * 180 / Math.PI), 1)
-                .append("deg")
-                .append(" Distance=").append(coords.getAxisValue(MotionEvent.AXIS_DISTANCE), 1)
-                .append(" VScroll=").append(coords.getAxisValue(MotionEvent.AXIS_VSCROLL), 1)
-                .append(" HScroll=").append(coords.getAxisValue(MotionEvent.AXIS_HSCROLL), 1)
-                .append(" BoundingBox=[(")
-                .append(event.getAxisValue(MotionEvent.AXIS_GENERIC_1), 3)
-                .append(", ").append(event.getAxisValue(MotionEvent.AXIS_GENERIC_2), 3).append(")")
-                .append(", (").append(event.getAxisValue(MotionEvent.AXIS_GENERIC_3), 3)
-                .append(", ").append(event.getAxisValue(MotionEvent.AXIS_GENERIC_4), 3)
-                .append(")]")
-                .append(" ToolType=").append(MotionEvent.toolTypeToString(toolType))
-                .append(" ButtonState=").append(MotionEvent.buttonStateToString(buttonState))
-                .toString());
     }
 }
