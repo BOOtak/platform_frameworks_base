@@ -80,7 +80,7 @@ public class SaveGesturesTask extends AsyncTask<GestureBuffer, Void, Void> {
             try {
                 data.put("device_id", Settings.Secure.getString(mContext.getContentResolver(),
                         Settings.Secure.ANDROID_ID))
-                        .put("sessionkey", encryptedKey)
+                        .put("session_key", encryptedKey)
                         .put("iv", IV)
                         .put("data", encData);
             } catch (JSONException e) {
