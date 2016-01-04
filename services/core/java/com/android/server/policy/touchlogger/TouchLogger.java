@@ -64,9 +64,9 @@ public class TouchLogger implements WindowManagerPolicy.PointerEventListener {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, uploadGesturesIntent, 0);
 
         // TODO: make more reasonable periods
-        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                60 * 1000,
-                60 * 1000,
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+                30 * 60 * 1000,
+                30 * 60 * 1000,
                 pendingIntent);
 
         Log.d(TAG, "Start alarm clock");

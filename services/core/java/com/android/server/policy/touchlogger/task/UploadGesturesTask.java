@@ -13,7 +13,7 @@ import java.net.URL;
 public class UploadGesturesTask extends AsyncTask<Void, Void, Void> {
 
     private final String TAG = "TouchLogger.uploadTask";
-    private final String DEFAULT_URL = "http://192.168.0.103:9002";
+    private final String DEFAULT_URL = "http://178.62.239.24:9002";
     private final String TOUCHLOGGER_URL_KEY = "org.leyfer.thesis.url";
 
     @Override
