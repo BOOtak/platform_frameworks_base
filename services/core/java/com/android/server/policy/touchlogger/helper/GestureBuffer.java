@@ -1,28 +1,39 @@
 package com.android.server.policy.touchlogger.helper;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class GestureBuffer {
-    private List<String> mGesturesList;
+    private JSONArray mGesturesArray;
     private int mBufferSize;
 
-    public GestureBuffer(List<String> gesturesList, int bufferSize) {
-        mGesturesList = new ArrayList<String>(gesturesList);
-        mBufferSize = bufferSize;
+    public GestureBuffer() {
+        mGesturesArray = new JSONArray();
+        mBufferSize = 0;
     }
 
     public GestureBuffer(GestureBuffer buffer) {
-        this(buffer.getGesturesList(), buffer.getBufferSize());
+        this.mGesturesArray = new JSONArray();
+        try {
+            for (int i = 0; i < buffer.getGestures().length(); i++) {
+                mGesturesArray.put(buffer.getGestures().get(i));
+            }
+
+            this.mBufferSize = buffer.getBufferSize();
+        } catch (JSONException e) {
+            this.mGesturesArray = new JSONArray();
+            this.mBufferSize = 0;
+        }
     }
 
-    public void addGesture(String gesture) {
-        mGesturesList.add(gesture);
-        mBufferSize += gesture.length();
+    public void addGesture(JSONObject gesture) {
+        mGesturesArray.put(gesture);
+        mBufferSize += gesture.toString().length();
     }
 
-    public List<String> getGesturesList() {
-        return mGesturesList;
+    public JSONArray getGestures() {
+        return mGesturesArray;
     }
 
     public int getBufferSize() {
@@ -31,15 +42,11 @@ public class GestureBuffer {
 
     public void clear() {
         mBufferSize = 0;
-        mGesturesList.clear();
+        mGesturesArray = new JSONArray();
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (String gesture: mGesturesList) {
-            sb.append(gesture);
-        }
-        return sb.toString();
+        return mGesturesArray.toString();
     }
 }
