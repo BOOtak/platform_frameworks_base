@@ -2,6 +2,7 @@ package com.android.server.policy.touchlogger.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Base64;
@@ -67,6 +68,8 @@ public class SaveGesturesTask extends AsyncTask<GestureBuffer, Void, Void> {
             try {
                 data.put("device_id", Settings.Secure.getString(mContext.getContentResolver(),
                         Settings.Secure.ANDROID_ID))
+                        .put("device_model", String.format("%s,%s,%s,%s",
+                                Build.MANUFACTURER, Build.BRAND, Build.BOARD, Build.MODEL))
                         .put("session_key", encryptedKey)
                         .put("iv", IV)
                         .put("data", encryptedData);
