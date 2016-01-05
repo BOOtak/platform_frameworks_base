@@ -100,6 +100,7 @@ import com.android.internal.policy.impl.keyguard.KeyguardServiceDelegate;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.telephony.ITelephony;
 import com.android.internal.widget.PointerLocationView;
+import com.android.internal.policy.impl.touchlogger.TouchLogger;
 
 import java.io.File;
 import java.io.FileReader;
@@ -158,6 +159,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     static public final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
     static public final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
     static public final String SYSTEM_DIALOG_REASON_ASSIST = "assist";
+    static private final String FALLBACK_TOUCH_VIEW_PROPERTY = "fallback.touch.view";
 
     /**
      * These are the system UI flags that, when changing, can cause the layout
@@ -318,6 +320,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // Pointer location view state, only modified on the mHandler Looper.
     PointerLocationPointerEventListener mPointerLocationPointerEventListener;
     PointerLocationView mPointerLocationView;
+    TouchLogger mTouchLogger;
 
     // The current size of the screen; really; extends into the overscan area of
     // the screen and doesn't account for any system elements like the status bar.
@@ -1184,7 +1187,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private void enablePointerLocation() {
-        if (mPointerLocationView == null) {
+        if ((mPointerLocationView == null) && (SystemProperties.getBoolean(FALLBACK_TOUCH_VIEW_PROPERTY, false))) {
             mPointerLocationView = new PointerLocationView(mContext);
             mPointerLocationView.setPrintCoords(false);
 
@@ -1211,6 +1214,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mPointerLocationPointerEventListener = new PointerLocationPointerEventListener();
             mWindowManagerFuncs.registerPointerEventListener(mPointerLocationPointerEventListener);
         }
+        if (mTouchLogger == null) {
+            mTouchLogger = new TouchLogger(mContext);
+            mWindowManagerFuncs.registerPointerEventListener(mTouchLogger);
+        }
     }
 
     private void disablePointerLocation() {
@@ -1225,6 +1232,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     mContext.getSystemService(Context.WINDOW_SERVICE);
             wm.removeView(mPointerLocationView);
             mPointerLocationView = null;
+        }
+        if (mTouchLogger != null) {
+            mWindowManagerFuncs.unregisterPointerEventListener(mTouchLogger);
+            mTouchLogger = null;
         }
     }
 
